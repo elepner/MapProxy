@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Layer queryable="1">
+  <Layer queryable="0">
+    <Name>sublayer1</Name>
+    <Title>titile1</Title>
+    <SRS>WGS84</SRS>
+    <LatLonBoundingBox minx="7.75667235936067" miny="57.995406040378" maxx="8.3821843243547445" maxy="58.269012564507364" />
+    <BoundingBox SRS="EPSG:32632" minx="426501" miny="6428875" maxx="463756" maxy="6458827" />
+    <Style>
+      <Name>va_line</Name>
+      <Title />
+    </Style>
+    <ScaleHint min="0" max="1500" />
+  </Layer>
+  <Layer queryable="1">
+    <Name>sublayer2</Name>
+    <Title>title2</Title>
+    <SRS>WGS84</SRS>
+    <LatLonBoundingBox minx="1" miny="2" maxx="3" maxy="4" />
+    <BoundingBox SRS="EPSG:32632" minx="426501" miny="6428875" maxx="463756" maxy="6458827" />
+    <ScaleHint min="0" max="10000" />
+  </Layer>
+</Layer>
