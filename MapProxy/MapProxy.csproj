@@ -200,6 +200,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ESRI\Layer.cs" />
+    <Compile Include="Models\ESRI\Legend.cs" />
+    <Compile Include="Models\ESRI\MapService.cs" />
     <Compile Include="Models\WMS\Capabilities.cs" />
     <Compile Include="Models\WMS\Layer.cs" />
     <Compile Include="Models\WMS\Range.cs" />
