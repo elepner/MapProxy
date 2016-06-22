@@ -12,7 +12,7 @@ namespace MapProxyTests
     {
         private static readonly string ResourceBase = "../../Resources";
         [TestMethod]
-        public void TestLayersClass()
+        public void TestLayerClass()
         {
             var layer = DeserealizeResource<Layer>("Layer.xml");
             Assert.AreEqual("TestLayer", layer.Name);
@@ -22,6 +22,17 @@ namespace MapProxyTests
             Assert.AreEqual(2000000d, layer.ScaleHint.Max);
         }
 
+
+        [TestMethod]
+        public void TestLayersClass()
+        {
+            var rootLayer = DeserealizeResource<Layer>("Layers.xml");
+            Assert.IsNotNull(rootLayer);
+            Assert.IsNotNull(rootLayer.Layers);
+            Assert.AreEqual(2, rootLayer.Layers.Length);
+        }
+
+
         [TestMethod]
         public void TestRangeClass()
         {
@@ -30,7 +41,18 @@ namespace MapProxyTests
             Assert.AreEqual(2000000d, range.Max);
         }
 
-        public static T DeserealizeResource<T>(string resourceName)
+        [TestMethod]
+        public void TestServiceClass()
+        {
+            var service = DeserealizeResource<WmsService>("Service.xml");
+            Assert.IsNotNull(service);
+            Assert.AreEqual("1.1.1", service.Version);
+            Assert.IsNotNull(service.Capability);
+            Assert.IsNotNull(service.ServiceInfo);
+        }
+            
+
+        private static T DeserealizeResource<T>(string resourceName)
         {
             var serializer = new XmlSerializer(typeof(T));
             T result;

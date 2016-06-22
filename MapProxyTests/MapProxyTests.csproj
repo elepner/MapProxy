@@ -51,6 +51,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Content Include="Resources\Service.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Compile Include="WMSModelsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

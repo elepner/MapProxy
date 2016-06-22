@@ -203,6 +203,7 @@
     <Compile Include="Models\WMS\Capabilities.cs" />
     <Compile Include="Models\WMS\Layer.cs" />
     <Compile Include="Models\WMS\Range.cs" />
+    <Compile Include="Models\WMS\Service.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

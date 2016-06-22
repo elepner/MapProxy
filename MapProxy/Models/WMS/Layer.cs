@@ -16,6 +16,8 @@ namespace MapProxy.Models.WMS
         [XmlElement("SRS")]
         public string SpatialReference { get; set; }
         public Range ScaleHint { get; set; }
+        [XmlElement("Layer")]
+        public Layer[] Layers { get; set; }
 
     }
 }
