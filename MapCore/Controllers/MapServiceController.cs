@@ -14,24 +14,13 @@ namespace MapCore.Controllers
     [Route("[controller]")]
     public class MapServiceController : Controller
     {
-
-        private static readonly string WmsUrl = "";
-
         // GET api/values
         [HttpGet]
         public async Task<MapService> Get()
         {
+            var wmsServiceReader = new FileWMSService(@"C:\Users\edle\Desktop\Capabilities.xml");
+            var wmsServiceInfo = await wmsServiceReader.GetServiceInformation();
 
-            WebRequest webRequest = WebRequest.Create(WmsUrl + "?service=wms&version=1.1.1&request=GetCapabilities");
-            webRequest.Method = "GET";
-            WmsService wmsServiceInfo = null;
-            
-            using (var response = await webRequest.GetResponseAsync())
-            {
-                var serializer = new XmlSerializer(typeof(WmsService));
-                wmsServiceInfo = (WmsService)serializer.Deserialize(response.GetResponseStream());
-            }
-            
             if (wmsServiceInfo == null) return null;
 
             var mapService = new MapService();
