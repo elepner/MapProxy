@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProxy", "MapProxy\MapProxy.csproj", "{DE6F413D-C0FA-4C51-A85D-9FFBDE216ED6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProxyTests", "MapProxyTests\MapProxyTests.csproj", "{FEA85CC4-4795-427E-A3B6-9894D41387FE}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MapCore", "MapCore\MapCore.xproj", "{C0B11621-1AA0-4517-86B5-94380D6ECA3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DE6F413D-C0FA-4C51-A85D-9FFBDE216ED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE6F413D-C0FA-4C51-A85D-9FFBDE216ED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE6F413D-C0FA-4C51-A85D-9FFBDE216ED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE6F413D-C0FA-4C51-A85D-9FFBDE216ED6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FEA85CC4-4795-427E-A3B6-9894D41387FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FEA85CC4-4795-427E-A3B6-9894D41387FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEA85CC4-4795-427E-A3B6-9894D41387FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEA85CC4-4795-427E-A3B6-9894D41387FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0B11621-1AA0-4517-86B5-94380D6ECA3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0B11621-1AA0-4517-86B5-94380D6ECA3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0B11621-1AA0-4517-86B5-94380D6ECA3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0B11621-1AA0-4517-86B5-94380D6ECA3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

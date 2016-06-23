@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<Layer queryable="1">
-  <Name>TestLayer</Name>
-  <Title>TestTitle</Title>
-  <SRS>EPSG:32632</SRS>
-  <LatLonBoundingBox minx="1" miny="2" maxx="3" maxy="4" />
-  <BoundingBox SRS="EPSG:32632" minx="426501" miny="6428875" maxx="463756" maxy="6458827" />
-  <ScaleHint min="100" max="2000000" />
-</Layer>
