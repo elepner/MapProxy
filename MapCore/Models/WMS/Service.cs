@@ -19,11 +19,21 @@ namespace MapCore.Models.WMS
     {
         public string Name { get; set; }
         public string Title { get; set; }
+        [XmlElement("OnlineResource")]
+        public Resource Resource { get; set; }
     }
 
     public class Capability
     {
         [XmlElement("Layer")]
         public Layer RootLayer { get; set; }
+    }
+
+    public class Resource
+    {
+        [XmlAttribute("type", Namespace = "http://www.w3.org/1999/xlink")]
+        public string Type { get; set; }
+        [XmlAttribute("href", Namespace = "http://www.w3.org/1999/xlink")]
+        public string Url { get; set; }
     }
 }

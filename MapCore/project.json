@@ -14,7 +14,8 @@
     "Microsoft.Extensions.Logging.Console": "1.0.0-rc2-final",
     "Microsoft.Extensions.Logging.Debug": "1.0.0-rc2-final",
     "System.Runtime.Serialization.Xml": "4.1.0",
-    "System.Xml.XmlSerializer": "4.0.10"
+    "System.Xml.XmlSerializer": "4.0.10",
+    "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.0.0-rc2-final"
   },
 
   "tools": {
