@@ -49,7 +49,7 @@ namespace MapCore.Controllers
         }
 
         [HttpGet("export")]
-        public async Task<IActionResult> Export([FromUri]ExportParameters exportParameters)
+        public async Task<FileStreamResult> Export([FromUri]ExportParameters exportParameters)
         {
             var wmsServiceReader = new FileWMSService(@"C:\Users\edle\Desktop\Capabilities.xml");
             var wmsServiceInfo = await wmsServiceReader.GetServiceInformation();
@@ -71,8 +71,6 @@ namespace MapCore.Controllers
                 {"SRS", "EPSG:32632"},
                 {
                     "layers","va_avl_line,va_line,va_cablepnt,va_cableline,va_mpnt,va_cpnt,va_cpnt_line,va_lequip,va_pequip,va_lineflowdir,va_freetxt,va_freepnt"
-                    //string.Join(",",
-                    //    exportParameters.Layers.Values.Select(layerId => esriServiceInfo.AllLayers[(int) layerId].Name))
                 },
                 {"format", "image/png"}
             };
@@ -85,18 +83,23 @@ namespace MapCore.Controllers
                         
             webRequest.Method = "GET";
                         
-            //return Ok(requestUriString);
             var wmsResult = await webRequest.GetResponseAsync();
             var stream = wmsResult.GetResponseStream();
-            var dump = @"C:\temp\dump.png";
             
-            CopyStream(stream, dump);
-
-            return new StreamResult(stream);
+            return new FileStreamResult(stream, "image/png");
 
         }
 
-
+        [HttpGet("TestData")]
+        public FileResult TestImg()
+        {
+            HttpContext.Response.ContentType = "image/png";
+            FileContentResult result = new FileContentResult(System.IO.File.ReadAllBytes(@"C:\temp\dump.png"), "image/png")
+            {
+                FileDownloadName = "image.png"
+            };
+            return result;
+        }
 
         public void CopyStream(Stream stream, string destPath)
         {
@@ -147,6 +150,7 @@ namespace MapCore.Controllers
                 {
                     Content = new StreamContent(_stream)
                 };
+                
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
                 return Task.FromResult(response);
             }
