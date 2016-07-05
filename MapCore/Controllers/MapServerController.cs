@@ -4,20 +4,19 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Xml.Serialization;
 using MapCore.Models.ESRI;
 using MapCore.Models.WMS;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.Chunks;
 using Layer = MapCore.Models.ESRI.Layer;
 
 namespace MapCore.Controllers
 {
-    [Route("[controller]")]
-    public class MapServiceController : Controller
+    [Route("arcgis/rest/services/test/[controller]")]
+    public class MapServerController : Controller
     {
         
         // GET api/values
@@ -29,16 +28,27 @@ namespace MapCore.Controllers
 
             if (wmsServiceInfo == null) return null;
 
-            var mapService = new MapService();
-            mapService.Name = wmsServiceInfo.ServiceInfo.Name;
-            mapService.Descritpion = wmsServiceInfo.ServiceInfo.Title;
+            var esriMapServiceDefinition = new MapService();
+            esriMapServiceDefinition.Name = wmsServiceInfo.ServiceInfo.Name;
+            esriMapServiceDefinition.Descritpion = wmsServiceInfo.ServiceInfo.Title;
             List<Layer> esriLayers = new List<Layer>();
             Dictionary<int, Layer> allLayers = new Dictionary<int, Layer>();
-            int count = 0;
-            TraverseLayers(new[] { wmsServiceInfo.Capability.RootLayer }, esriLayers, allLayers, ref count);
-            mapService.Root = esriLayers.FirstOrDefault();
-            mapService.AllLayers = allLayers;
-            return mapService;
+            int count = -1;
+            TraverseLayers(new[] { wmsServiceInfo.Capability.RootLayer }, esriLayers, allLayers, -1, ref count);
+            esriMapServiceDefinition.Root = esriLayers.FirstOrDefault();
+            esriMapServiceDefinition.AllLayers = allLayers;
+            esriMapServiceDefinition.SpatialReference = new SpatialReference(32632);
+            var extent = new Extent();
+            var bbox = wmsServiceInfo.Capability.RootLayer.BoundingBox;
+            extent.SpatialReference = new SpatialReference(bbox.Wkid);
+            extent.Xmax = bbox.XMax;
+            extent.Ymax = bbox.YMax;
+            extent.Xmin = bbox.XMin;
+            extent.Ymin = bbox.YMin;
+
+            esriMapServiceDefinition.FullExtent = extent;
+            esriMapServiceDefinition.InitialExtent = extent;
+            return esriMapServiceDefinition;
         }
         
         [HttpGet("{id}")]
@@ -53,7 +63,6 @@ namespace MapCore.Controllers
         {
             var wmsServiceReader = new FileWMSService(@"C:\Users\edle\Desktop\Capabilities.xml");
             var wmsServiceInfo = await wmsServiceReader.GetServiceInformation();
-
             var esriServiceInfo = await Get();
 
             var requestParams = new Dictionary<string, object>
@@ -69,11 +78,21 @@ namespace MapCore.Controllers
                 {"request", "GetMap"},
                 {"service", "WMS"},
                 {"SRS", "EPSG:32632"},
-                {
-                    "layers","va_avl_line,va_line,va_cablepnt,va_cableline,va_mpnt,va_cpnt,va_cpnt_line,va_lequip,va_pequip,va_lineflowdir,va_freetxt,va_freepnt"
-                },
                 {"format", "image/png"}
             };
+
+            var layerNames = new List<string>();
+            foreach (var layerIdDouble in exportParameters.Layers.Values)
+            {
+                int layerID = (int) layerIdDouble;
+                Layer layer;
+                if (esriServiceInfo.AllLayers.TryGetValue(layerID, out layer))
+                {
+                    layerNames.Add(layer.Name);
+                }
+            }
+
+            requestParams.Add("layers", string.Join(",", layerNames));
 
             var requestUriString = wmsServiceInfo.ServiceInfo.Resource.Url + "?";
             requestUriString += string.Join("&", requestParams.Select(x => x.Key + "=" + x.Value.ToString()));
@@ -90,69 +109,34 @@ namespace MapCore.Controllers
 
         }
 
-        [HttpGet("TestData")]
-        public FileResult TestImg()
+        [HttpGet("info")]
+        public ServerInfo ServerInfo()
         {
-            HttpContext.Response.ContentType = "image/png";
-            FileContentResult result = new FileContentResult(System.IO.File.ReadAllBytes(@"C:\temp\dump.png"), "image/png")
-            {
-                FileDownloadName = "image.png"
-            };
-            return result;
+            return new ServerInfo();
         }
 
-        public void CopyStream(Stream stream, string destPath)
-        {
-            using (var fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write))
-            {
-                stream.CopyTo(fileStream);
-            }
-        }
-
-        private byte[] ReadFully(Stream input)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                input.CopyTo(ms);
-                return ms.ToArray();
-            }
-        }
-        private void TraverseLayers(Models.WMS.Layer[] wmsLayers, List<Layer> esriLayers, Dictionary<int, Layer> allLayers, ref int count)
+        private void TraverseLayers(Models.WMS.Layer[] wmsLayers, List<Layer> esriLayers, Dictionary<int, Layer> allLayers,int parentId, ref int count)
         {
             foreach (var wmsLayer in wmsLayers)
             {
                 var esriLayer = new Layer();
+                esriLayer.ParentLayerId = parentId;
                 esriLayers.Add(esriLayer);
                 esriLayer.Name = wmsLayer.Name;
                 esriLayer.Id = count++;
+                if (wmsLayer.ScaleHint != null)
+                {
+                    esriLayer.MinScale = wmsLayer.ScaleHint.Min;
+                    esriLayer.MaxScale = wmsLayer.ScaleHint.Max;
+                }
+
                 allLayers.Add(esriLayer.Id, esriLayer);
                 if (wmsLayer.Layers != null && wmsLayer.Layers.Length > 0)
                 {
                     var subLayers = new List<Layer>(wmsLayer.Layers.Length);
-                    TraverseLayers(wmsLayer.Layers, subLayers, allLayers, ref count);
+                    TraverseLayers(wmsLayer.Layers, subLayers, allLayers, esriLayer.Id, ref count);
                     esriLayer.Sublayers = subLayers.ToArray();
                 }
-            }
-        }
-
-        class StreamResult : IActionResult
-        {
-            private readonly Stream _stream;
-
-            public StreamResult(Stream stream)
-            {
-                _stream = stream;
-            }
-
-            public Task ExecuteResultAsync(ActionContext context)
-            {
-                var response = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StreamContent(_stream)
-                };
-                
-                response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
-                return Task.FromResult(response);
             }
         }
     }

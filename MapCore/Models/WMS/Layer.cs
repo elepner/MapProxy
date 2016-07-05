@@ -13,6 +13,7 @@ namespace MapCore.Models.WMS
         public Range ScaleHint { get; set; }
         [XmlElement("Layer")]
         public Layer[] Layers { get; set; }
-
+        [XmlElement("BoundingBox")]
+        public BoundingBox BoundingBox { get; set; }
     }
 }
