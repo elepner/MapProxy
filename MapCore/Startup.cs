@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Formatting;
 using System.Text;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -37,7 +39,10 @@ namespace MapCore
             services.AddMvc();
             services.Configure<MvcOptions>(options =>
             {
+                options.OutputFormatters.RemoveType<JsonOutputFormatter>();
+                options.OutputFormatters.Add(new JsonpOutputFormatter());
                 var formatter = options.OutputFormatters.First(f => f is JsonOutputFormatter) as JsonOutputFormatter;
+
                 if (formatter == null) return;
 
                 formatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -60,15 +65,33 @@ namespace MapCore
 
     public class JsonpOutputFormatter : JsonOutputFormatter
     {
-        
-        public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
-            return base.WriteResponseBodyAsync(context, selectedEncoding);
-        }
-
-        public override void WriteResponseHeaders(OutputFormatterWriteContext context)
-        {
-            base.WriteResponseHeaders(context);
+            var httpQuery = context.HttpContext.Request.Query;
+            StringValues callback;
+            if (httpQuery.TryGetValue("callback", out callback) && callback.Count == 1)
+            {
+                if (selectedEncoding == null)
+                    throw new ArgumentNullException("selectedEncoding");
+                string callbackFunc = callback[0];
+                TextWriter writer = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding);
+                try
+                {
+                    writer.Write(callbackFunc + "(");
+                    WriteObject(writer, context.Object);
+                    writer.Write(")");
+                    await writer.FlushAsync();
+                }
+                finally
+                {
+                    writer?.Dispose();
+                }
+            }
+            else
+            {
+                await base.WriteResponseBodyAsync(context, selectedEncoding);
+            }
+            
         }
     }
 
